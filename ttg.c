@@ -48,6 +48,8 @@ uint64_t S_GB;
 char S_Unit[2];
 
 uint64_t maxin=0, minin=-1, maxout=0, minout=-1;
+uint64_t maxValue64 = UINT64_MAX;
+
 uint64_t sumin=0, sumout=0;
 unsigned int iterations=0, count=-1, interval=1, extended=0, debug=0, physical=0;
 struct snmp_session *ses;
@@ -76,6 +78,7 @@ int main(int argc, char **argv) {
         switch(c) {
             case 'v':
                 version();
+                break;
             case 'x':
                 extended=1;
                 break;
@@ -241,14 +244,48 @@ void thr(int ifno) {
             prevout64=out64;
             in64=getcntr64(OID_XIN, ifno);
             out64=getcntr64(OID_XOUT, ifno);
-            ratein64=(uint64_t)(in64-previn64);
-            rateout64=(uint64_t)(out64-prevout64);
+
+            /* validate if counters not restart */
+            if (previn64>in64) {
+                previn64=(uint64_t)(maxValue64-previn64);
+                ratein64=(uint64_t)(in64+previn64);
+            } else {
+                ratein64=(uint64_t)(in64-previn64);
+            }
+
+            if (prevout64>out64) {
+                prevout64=(uint64_t)(maxValue64-prevout64);
+                rateout64=(uint64_t)(out64+prevout64);
+            } else {
+                rateout64=(uint64_t)(out64-prevout64);
+            }
+
+            
         }
         else {
             previn32=in32;
             prevout32=out32;
             in32=getcntr32(OID_IN, ifno);
             out32=getcntr32(OID_OUT, ifno);
+
+            /* validate if counters not restart */
+
+            if (previn32>in32) {
+                previn32=(uint32_t)(4294967295-previn32);
+                ratein32=(uint32_t)(in32+previn32);
+            } else {
+                ratein32=(uint32_t)(in32-previn32);
+            }
+
+            if (prevout32>out32) {
+                prevout32=(uint32_t)(4294967295-prevout32);
+                rateout32=(uint32_t)(out32+prevout32);
+            } else {
+                rateout32=(uint32_t)(out32-prevout32);
+            }
+
+
+
             ratein32=(uint32_t)(in32-previn32);
             rateout32=(uint32_t)(out32-prevout32);
         }
