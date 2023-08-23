@@ -157,6 +157,9 @@ int main(int argc, char **argv) {
     init_ses.peername=argv[optind];
     init_ses.community=(unsigned char*)argv[optind+1];
     init_ses.community_len=strlen((char *)argv[optind+1]);
+    /* add 1second timeout +3 times retry*/
+    init_ses.timeout=1000000;
+    init_ses.retries=3;
     snmp_enable_stderrlog(); 
 
     ses=snmp_open(&init_ses);

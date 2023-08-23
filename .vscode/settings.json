@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "net-snmp-config.h": "c",
+        "net-snmp-includes.h": "c"
+    }
+}
